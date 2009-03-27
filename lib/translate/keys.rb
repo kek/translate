@@ -86,7 +86,7 @@ class Translate::Keys
   end
 
   def files_to_scan
-    Dir.glob(File.join(files_root_dir, "{app,config,lib}", "**","*.{rb,erb,rhtml}")) +
+    Dir.glob(File.join(files_root_dir, "{app,config,lib}", "**","*.{rb,erb,rhtml,haml}")) +
       Dir.glob(File.join(files_root_dir, "public", "javascripts", "**","*.js"))
   end
   

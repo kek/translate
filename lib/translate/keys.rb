@@ -48,6 +48,24 @@ class Translate::Keys
       deep_hash
     end
   end
+  
+  def self.deep_delete!(hash, key)
+    key_path = key.split(".")
+    
+    parent_node = key_path.inject(hash) do |node, key|
+      if node[key].is_a?(Hash)
+        node[key]
+      else
+        node
+      end
+    end
+    
+    # delete the deep key
+    parent_node.delete(key_path.last)
+    
+    # return the modified hash
+    hash
+  end
 
   # deep_merge by Stefan Rusterholz, see http://www.ruby-forum.com/topic/142809
   def self.deep_merge!(hash1, hash2)
@@ -72,7 +90,7 @@ class Translate::Keys
   
   def extract_files
     files_to_scan.inject(HashWithIndifferentAccess.new) do |files, file|
-      IO.read(file).scan(i18n_lookup_pattern).flatten.map(&:to_sym).each do |key|
+      IO.read(file).scan(i18n_lookup_pattern).map { |match| match[i18n_lookup_backreference_index] }.flatten.map(&:to_sym).each do |key|
         files[key] ||= []
         path = Pathname.new(File.expand_path(file)).relative_path_from(Pathname.new(Rails.root)).to_s
         files[key] << path if !files[key].include?(path)
@@ -82,7 +100,11 @@ class Translate::Keys
   end
 
   def i18n_lookup_pattern
-    /\b(?:I18n\.t|I18n\.translate|t)(?:\s|\():?'([a-z0-9_]+.[a-z0-9_.]+)'\)?/
+    /(?:I18n\.t|I18n\.translate)(?:\s|\()('|")([a-zA-Z0-9_:\(\)\[\]\?\s\-\/\.]*)\1\)?/
+  end
+  
+  def i18n_lookup_backreference_index
+    1
   end
 
   def files_to_scan

@@ -41,7 +41,7 @@ namespace :translate do
       locale_hash = locale_hash.deep_merge(YAML::load(File.open(locale_file_name))[LOCALE])
     end
     lookup_pattern = Translate::Keys.new.send(:i18n_lookup_pattern)
-    Dir.glob(File.join("app", "**","*.{rb,rhtml}")).each do |file_name|
+    Dir.glob(File.join("app", "**","*.{erb,rb,rhtml}")).each do |file_name|
       File.open(file_name, "r+").each do |line|
         line.scan(lookup_pattern) do |key_string|
           result << "#{key_string} in \t  #{file_name} is not in any locale file" unless key_exist?(key_string.first.split("."), locale_hash)

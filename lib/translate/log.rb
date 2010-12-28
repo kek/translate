@@ -30,6 +30,6 @@ class Translate::Log
   end
   
   def file_path
-    File.join(Rails.root, "config", "locales", "log", "from_#{from_locale}_to_#{to_locale}.yml")
+    File.join(Rails.root, "log", "from_#{from_locale}_to_#{to_locale}.yml")
   end
 end

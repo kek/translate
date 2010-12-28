@@ -8,13 +8,13 @@
 	<legend>Search filter</legend>
 	<div id="show-sort">
 		<p>
-		 <label>Show:</label> <%=  raw simple_filter(show_filters) %>
+		 <label>Show:</label> <%=  simple_filter(show_filters).html_safe %>
 		</p>
 		<p>
-		 <label>Sort by:</label> <%= raw simple_filter(["key", "text"], 'sort_by') %>
+		 <label>Sort by:</label> <%= simple_filter(["key", "text"], 'sort_by').html_safe %>
 		</p>
 	</div>
-  <%= form_tag(params, :method => :get) do %>
+  <% form_tag(params, :method => :get) do %>
   <div id="languages">
    <p>
      <%= hidden_field_tag(:filter, params[:filter]) %>

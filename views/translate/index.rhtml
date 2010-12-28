@@ -8,13 +8,13 @@
 	<legend>Search filter</legend>
 	<div id="show-sort">
 		<p>
-		 <label>Show:</label> <%=  simple_filter(show_filters) %>
+		 <label>Show:</label> <%=  raw simple_filter(show_filters) %>
 		</p>
 		<p>
-		 <label>Sort by:</label> <%= simple_filter(["key", "text"], 'sort_by') %>
+		 <label>Sort by:</label> <%= raw simple_filter(["key", "text"], 'sort_by') %>
 		</p>
 	</div>
-  <% form_tag(params, :method => :get) do %>
+  <%= form_tag(params, :method => :get) do %>
   <div id="languages">
    <p>
      <%= hidden_field_tag(:filter, params[:filter]) %>
@@ -56,7 +56,7 @@
 </div>
 
 <% if @total_entries > 0 %>
-<% form_tag(translate_path) do %>
+<%= form_tag(translate_path) do %>
   <div>
       <%= hidden_field_tag(:filter, params[:filter], :id => "hid_filter") %>
       <%= hidden_field_tag(:sort_by, params[:sort_by], :id => "hid_sort_by") %>

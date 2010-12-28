@@ -142,7 +142,7 @@ class Translate::Keys
   end
 
   def i18n_lookup_pattern
-    /\b(?:I18n\.t|I18n\.translate|t)(?:\s|\():?'([a-z0-9_]+.[a-z0-9_.]+)'\)?/
+    /\b(?:I18n\.t|I18n\.translate|t)(?:\s|\():?'([A-Za-z0-9_]+.[A-Za-z0-9_.]+)'\)?/
   end
 
   def files_to_scan

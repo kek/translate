@@ -6,7 +6,7 @@ class TranslateController < ActionController::Base
   layout 'translate'
 
   before_filter :init_translations
-  before_filter :set_translate_locales
+  before_filter :set_locale
   
   def index
     initialize_keys
@@ -19,24 +19,11 @@ class TranslateController < ActionController::Base
   end
   
   def translate
-    storage_hash = Hash.new
-    params[:key].keys.each {|k| storage_hash[k] = params[:key][k] unless params[:key][k].blank?}
-    I18n.backend.store_translations(@to_locale, Translate::Keys.to_deep_hash(storage_hash))
+    I18n.backend.store_translations(@to_locale, Translate::Keys.to_deep_hash(params[:key]))
     Translate::Storage.new(@to_locale).write_to_file
     Translate::Log.new(@from_locale, @to_locale, params[:key].keys).write_to_file
     force_init_translations # Force reload from YAML file
     flash[:notice] = "Translations stored"
-    redirect_to params.slice(:filter, :sort_by, :key_type, :key_pattern, :text_type, :text_pattern).merge({:action => :index})
-  end
-  
-  def destroy
-    storage_hash = Translate::Keys.to_deep_hash({params[:key] => nil})
-    I18n.valid_locales.each do |locale|
-      I18n.backend.store_translations(locale, storage_hash)
-      Translate::Storage.new(locale).write_to_file
-    end
-    force_init_translations # Force reload from YAML file
-    flash[:notice] = "Translation key #{params[:key]} has been removed from translations tree."
     redirect_to params.slice(:filter, :sort_by, :key_type, :key_pattern, :text_type, :text_pattern).merge({:action => :index})
   end
 
@@ -53,7 +40,7 @@ class TranslateController < ActionController::Base
       from_text = lookup(@from_locale, key)
       # When translating from one language to another, make sure there is a text to translate from.
       # Always exclude non string translation objects as we don't support editing them in the UI.
-      (@from_locale != @to_locale && !from_text.present?) || (from_text.present? && !from_text.is_a?(String))
+      (@from_locale != @to_locale && !from_text.present?) || (from_text.present? && !from_text.is_a?(String))      
     end
   end
 
@@ -73,16 +60,10 @@ class TranslateController < ActionController::Base
         lookup(@to_locale, key).blank?
       when 'changed'
         old_from_text(key).blank? || lookup(@from_locale, key) == old_from_text(key)
-      when 'stale'
-        !stale_keys.include?(key)
       else
         raise "Unknown filter '#{params[:filter]}'"
       end
     end
-  end
-  
-  def stale_keys
-    @stale_keys ||= Translate::Keys.new.i18n_keys(@from_locale).uniq.compact - @files.keys.map(&:to_s).uniq.compact
   end
   
   def filter_by_key_pattern
@@ -159,7 +140,7 @@ class TranslateController < ActionController::Base
     I18n.default_locale
   end
   
-  def set_translate_locales
+  def set_locale
     session[:from_locale] ||= default_locale
     session[:to_locale] ||= :en
     session[:from_locale] = params[:from_locale] if params[:from_locale].present?
